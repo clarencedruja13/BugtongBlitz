@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUGTONG BLITZ - Game Mode</title>
+    <style>
+        @font-face {
+            font-family: 'Swis721 BlkOul BT';
+            src: url('Swis721BlkOulBT.ttf');
+        }
+        body {
+            font-family: 'Swis721 BlkOul BT', Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background: url('https://free-vectors.net/_ph/6/805542910.jpg') center/cover no-repeat;
+            color: rgb(94, 87, 87);
+            font-weight: bolder;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        h1 {
+            font-size: 36px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-top: 50px;
+            color: #ffc107;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            font-family: 'Arial Black', cursive;
+        }
+        #game-container {
+            background: rgba(245, 241, 241, 0.475);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            width: 85%;
+            max-width: 800px;
+            transition: transform 0.3s ease-in-out;
+            margin-top: 20px;
+            position: relative;
+        }
+        #timer {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: red;
+            background-color: black;
+            padding: 5px 10px;
+            border-radius: 50%;
+            border: 3px solid rgb(172, 15, 15);
+            box-shadow: 0 2px 5px rgba(231, 223, 223, 0.5);
+            font-family: 'Swis721 BlkOul BT', sans-serif;
+        }
+        #riddle-container {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: black;
+            font-family: 'Arial Black', sans-serif;
+            background: #3f3c3c94;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        #answer {
+            font-size: 20px;
+            font-weight: bold;
+            font-family: 'Arial Black', sans-serif;
+        }
+        #score {
+            font-size: 22px;
+            font-weight: bold;
+            color: rgb(32, 29, 29);
+            font-family: 'Arial Black', sans-serif;
+        }
+        input {
+            width: 80%;
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 10px;
+            border: 2px solid #333;
+            text-align: center;
+            font-family: 'Arial Black', sans-serif;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 25px;
+            cursor: pointer;
+            margin: 10px;
+            background: #ffc107;
+            border: none;
+            color: #333;
+            border-radius: 10px;
+            font-family: 'Arial Black', sans-serif;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>BUGTONG BLITZ</h1>
+    <div id="game-container">
+        <div id="timer">15</div>
+        <p id="score">⭐ SCORE: 0</p>
+        <div id="riddle-container">
+            <p id="riddle"></p>
+        </div>
+        <input type="text" id="userAnswer" placeholder="Ilagay ang iyong sagot dito...">
+        <p id="answer"></p>
+        <button onclick="checkAnswer()">SUBMIT</button>
+        <button id="skipButton">SKIP</button>
+    </div>
+
+    <script>
+        const riddles = [
+            { question: "1. Ginto sa kalangitan, hindi matitigan. Ano ito?", answer: "Araw" },
+            { question: "2. Mataas kung naka-upo, mababa kung nakatayo. Ano ito?", answer: "Aso" },
+            { question: "3. Tubig na nagiging bato, batong nagiging tubig. Ano ito?", answer: "Asin" },
+            { question: "4. Baston ni kapitan, hindi ko mahawakan. Ano ito?", answer: "Ahas" },
+            { question: "5. Isang kulisap, Kikislap-kislap. Ano ito?", answer: "Alitaptap" },
+            { question: "6. Buhay na hiniram lamang, pinagmulan ng sangkatauhan. Ano ito?", answer: "Babae" },          
+            { question: "7. Palda ni Maria, ang kulay ay iba-iba", answer: "Bahaghari" },
+            { question: "8. Bahay ni kahuli, haligi'y bali-bali, ang bubong ay kawali.", answer: "Alimango" },
+            { question: "9. Kapirasong putol na tela, Mga mamamayan pinagsama-sama", answer: "Bandila" },
+            { question: "10. Naka-yuko na ang reyna, di nalalaglag ang korona", answer: "Bayabas" },
+            { question: "11. Kung araw ay bukas, kung gabi ay sara", answer: "Bintana" },
+            { question: "12. Bumubuka’y walang bibig, Ngumingiti ng tahimik", answer: "Bulaklak" },
+            { question: "13. Heto na si Lelong, Bubulong-bulong", answer: "Bubuyog" },
+            { question: "14. Kaisa-isang plato, kita sa buong mundo", answer: "Buwan" },
+            { question: "15. Isang pasukan, Tatlo ang labasan", answer: "Damit" },
+            { question: "16. Dalawang magkaibigan, unahan ng unahan", answer: "Paa" },
+            { question: "17. Walang sinumang nakaka-alam, pagdating ng kadiliman", answer: "Kamatayan" },
+            { question: "18. Tumatakbong bahay, Tinutulak-tulak", answer: "Kariton" },
+            { question: "19. Apoy na iginuhit, isinulat sa langit", answer: "Kidlat" },
+            { question: "20. Hayan na si Katoto, dala-dala ang kubo", answer: "Pagong" },
+            { question: "21. Ang mukha’y parang tao, mataas lumukso, mabilis tumakbo", answer: "Unggoy" },
+            { question: "22. Ang anak ay nakaupo na, ang ina’y gumagapang pa.", answer: "Kalabasa" },          
+            { question: "23. Limang puno ng niyog, ang isa'y matayog", answer: "Daliri" },
+            { question: "24. Baston ni Adan, Hindi mabilang-bilang", answer: "Ulan" },
+            { question: "25. Mga eroplano sa kalawakan, dumadapo sa mga puno sa kagubatan", answer: "Ibon" },
+            { question: "26. Dalawang balon, lalim ay paahon", answer: "Ilong" },
+            { question: "27. Hindi akin, hindi sa iyo, ari ng lahat ng tao", answer: "Mundo" },
+            { question: "28. Isang hukbong sundalo, dikit-dikit ang mga ulo", answer: "Walis" },
+            { question: "29. Tag-ulan o tag-araw, hanggang tuhod ang salawal", answer: "Manok" },
+            { question: "30. Bisitang hindi inaasahan, nauuna sa hapag kainan", answer: "Langaw" },
+            { question: "31. Limang magkakapatid, iisa ang dibdib", answer: "Kamay" },
+            { question: "32. Bahay ni Kaka, Hindi matingala", answer: "Noo" },
+            { question: "33. Ibon kong kay daldal, Ginagaya lang ang inuusal", answer: "Parrot" },
+            { question: "34. Hinila ko ang baging, nag-iikot ang matsing", answer: "Trumpo" },
+            { question: "35. Nagsaing si Kurukutong, kumukulo’y walang gatong", answer: "Sabon" },
+            { question: "36. Maliit at malaki, iisa ang sinasabi", answer: "Relo" },
+            { question: "37. Sinisindihan, wala namang inilawan", answer: "Sigarilyo" },
+            { question: "38. Pangyayari sa sandaigdigan, Nakikita sa loob ng tahanan", answer: "Telebisyon" },
+            { question: "39. Binili kong mahal, Isinabit ko lamang", answer: "Hikaw" },
+            { question: "40. Tumingin ka sa akin, ang makikita mo’y ikaw din", answer: "Salamin" },
+            { question: "41. Dalawang magka-agapay na katawan, ginagawang akyatan", answer: "Hagdanan" },
+            { question: "42. Sariling-sarili mo na, ginagamit pa ng iba", answer: "Pangalan" },
+            { question: "43. Bugtong kong sapin-sapin, naka-sabit, naka-bitin, araw kung bilangin, isang taon kung tapusin", answer: "Kalendaryo" },
+            { question: "44. Noong malinis ay hinahamak, nang magka-guhit ay kinausap", answer: "Papel" },
+            { question: "45. Dugtong-dugtong, kabit-kabit, pagkabilis-bilis", answer: "Tren" },
+            { question: "46. Mga paa’y walang baywang, may likod walang tiyan", answer: "Silya" },
+            { question: "47. Sa araw ay nahihimbing, sa gabi ay gising", answer: "Paniki" },
+            { question: "48. Dalawang batong maitim, malayo ang nararating", answer: "Mata" },
+            { question: "49. Hugis-puso, kulay ginto, anong sarap kung kagatin, malinamnam kung kainin", answer: "Mangga" },
+            { question: "50. Likidong itim, pang-kulay sa lutuin", answer: "Toyo" },
+            { question: "51. Nagtanim ako ng isip sa gitna ng tubig, dahon ay makitid, bunga ay matulis", answer: "Palay" },
+            { question: "52. Bahay ni San Vicente, punung-puno ng diyamante", answer: "Granada" },
+            { question: "53. Sapagkat lahat na ay nakahihipo, walang kasindumi’t, walang kasimbaho, bakit mahal nati’t ipinakatatago", answer: "Salapi/Pera" },
+            { question: "54. Isang bahay na bato, ang takip ay bilao", answer: "Suso" },
+            { question: "55. Maliit pa si kumare, marunong ng humuni", answer: "Kuliglig" },
+            { question: "56. Banga ng pari, Paulit-ulit", answer: "Duyan" },
+            { question: "57. Instrumentong pang-harana, hugis nito ay katawan ng dalaga", answer: "Gitara" },
+            { question: "58. Buklod na tinampukan, saksi ng pag-iibigan", answer: "Singsing" },
+            { question: "59. Kay lapit-lapit na sa mata, hindi mo pa rin makita", answer: "Tenga" },
+            { question: "60. Baboy ko sa pulo, ang balahibo’y pako", answer: "Langka" },
+            { question: "61. Kung tawagin nila’y santo, hindi naman milagroso", answer: "Santol" },
+            { question: "62. Ito namang pinsan ko, Saka lang kikilos kung pinapalo", answer: "Pako" },
+            { question: "63. May puno walang bunga, may dahon, walang sanga", answer: "Sandok" },
+            { question: "64. Munting tampipi, puno ng salapi", answer: "Sili" },
+            { question: "65. Maliit na bahay, puno ng mga patay", answer: "Posporo" },
+            { question: "66. Bumili ako ng alipin, mas mataas pa sa akin", answer: "Sumbrero" },
+            { question: "67. Ihagis mo man kahit saan, sadyang babalik at babalik sa pinanggalingan", answer: "Yoyo" },
+            { question: "68. Hindi hayop, hindi tao, nagsusuot ng sumbrero", answer: "Sabitan ng Sumbrero" },
+            { question: "69. Ang distansiya’y dagat na malawak, Sa mahabang kawad lang ay makapag-usap", answer: "Telepono" },
+            { question: "70. Dalawang kuwebang naglalabas ng tubig, pagkaraa’y naman agad binabalik", answer: "Sipon" },
+            { question: "71. Anong meron sa jeep, tricyle at bus na wala sa eroplano", answer: "Side Mirror" },
+            { question: "72. Pagkagat ng madiin, naiiwan ang ngipin", answer: "Stapler" },
+            { question: "73. May alaga akong hayop, malaki ang mata kaysa tuhod", answer: "Tutubi" },
+            { question: "74. Bituing buto’t balat, kung pasko lamang kumikislap", answer: "Parol" },
+            { question: "75. Daang nagpapa-ikli sa lakbayin mo, maaaring gawa sa bato, bakal o kahoy", answer: "Tulay" },
+            { question: "76. Kung araw ay patung-patong, kung gabi’y dugtung-dugtong", answer: "Unan" },
+            { question: "77. Sumbrero ang panakip natin sa ulo, Ito naman ang panaklob sa bahay ni Lolo", answer: "Yero" },
+            { question: "78. Malaking tahanan, pinagdadasalan", answer: "Simbahan" },
+            { question: "79. Ipinalilok ko at ipinalubid, naghigpitan ang kapit", answer: "Sinturon" },
+            { question: "80. Isang silong tanikala, sa leeg iniakma, Ang magsuot diwata, Gumaganda’t gumagara", answer: "Kuwintas" },
+            { question: "81. Hindi tao, hindi hayop, may katawan, walang paa, may ilong walang mukha, may tenga walang ulo", answer: "Martilyo" },
+            { question: "82. Mapa-gabi, mapa-araw, walang tigil sa kadadaldal, Ngunit kapag nakainisan, atin itong pinapatay", answer: "Radyo" },
+            { question: "83. Bugtong-bugtong, hindi mabitawan kahit may kasalanan", answer: "Pag-Ibig" },
+            { question: "84. Dito ko itinanim, doon lumaki", answer: "Flashlight" },
+            { question: "85. Hindi tao, hindi hayop, ngunit nagbibigay ng init sa katawan", answer: "Jacket" },
+            { question: "86. Matotorete ka sa kataasan, Makikita mo na rito ang malayong kapaligiran", answer: "Tore" },
+            { question: "87. Daanan ng tubig sa ilalim ng lupa, kung mabubutas ito lagot ka sa mikrobyo", answer: "Tubo" },
+            { question: "88. Mga isdang nagsisiksikan sa latang kanilang tirahan", answer: "Sardinas" },
+            { question: "89. Ako’y iyak ng iyak, patuloy ang agos ng luha, kahit daanan ng tubig ay biyak, nilabas ko lang ang galit hanggang ito’y maging bula", answer: "Ilog" },
+            { question: "90. Kung si Kupido ay pakikinggan, ito ay pinaka-mahalagang bahagi ng katawan. Ano ito?", "answer": "Puso" },
+            { question: "91. Ang ulo ay kabayo, ang leeg ay pare, ang katawan ay uod, ang paa ay lagare. Ano ito?", "answer": "Tipaklong" },
+            { question: "92. Di makita ay kaylapit, kahit na pumikit-pikit. Ano ito?", "answer": "Pilikmata" },
+            { question: "93. Ama ng wikang Filipino, sa Pilipinas ay naging pangulo. Sino siya?", "answer": "Quezon" },
+            { question: "94. Makinarya itong potograpo, mapararami litrato at manuskrito. Ano ito?", "answer": "Xerox" },
+            { question: "95. Isang baging, iisa ang dahon. Ano ito?", "answer": "Saranggola" },
+            { question: "96. Ikaw na humihiwa-hiwa, ay siya pang lumuluha. Ano ito?", "answer": "Sibuyas" },
+            { question: "97. Hari ng karagatan, palikpik ang matatanawan. Ano ito?", "answer": "Pating" },
+            { question: "98. Ito ay matatamisan, kahit hindi lagyan ng asukal. Ano ito?", "answer": "Ngiti" },
+            { question: "99. Sa bakal ay ipinupukpok ito, bituin ay makikita mo. Ano ito?", "answer": "Maso" },
+            { question: "100. Hindi hayop, hindi tao, nagpapatakbo. Ano ito?", "answer": "Makina" }
+        ];
+    
+        let currentIndex = 0;
+        let timer;
+        let timeLeft = 15;
+        let score = 0;
+    
+        function updateTimer() {
+            document.getElementById("timer").textContent = timeLeft;
+        }
+    
+        function startTimer() {
+            clearInterval(timer);
+            timeLeft = 15;
+            updateTimer();
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimer();
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    document.getElementById("answer").textContent = "⏳ TAPOS NA ANG ORAS!";
+                    setTimeout(nextRiddle, 2000);
+                }
+            }, 1000);
+        }
+    
+        function showRiddle() {
+            document.getElementById("riddle").textContent = riddles[currentIndex].question;
+            document.getElementById("answer").textContent = "";
+            document.getElementById("userAnswer").value = "";
+            startTimer();
+        }
+    
+        function checkAnswer() {
+    const userAnswer = document.getElementById("userAnswer").value.trim().toLowerCase();
+    if (userAnswer === "") return;
+    clearInterval(timer);
+
+    const answerElement = document.getElementById("answer");
+
+    if (userAnswer === riddles[currentIndex].answer.toLowerCase()) {
+        score++;
+        document.getElementById("score").innerText = `⭐ SCORE: ${score}`;
+        answerElement.innerText = "✔ TAMANG SAGOT!";
+    } else {
+        answerElement.innerText = `❌ MALI! Ang tamang sagot ay: ${riddles[currentIndex].answer}`;
+    }
+
+    setTimeout(nextRiddle, 3000);
+}
+
+function nextRiddle() {
+    currentIndex = (currentIndex + 1) % riddles.length;
+    showRiddle();
+
+    document.getElementById("answer").innerText = "";
+}
+
+document.getElementById("skipButton").addEventListener("click", nextRiddle);
+
+showRiddle();
+
+        
+    </script>
+</body>
+</html>
